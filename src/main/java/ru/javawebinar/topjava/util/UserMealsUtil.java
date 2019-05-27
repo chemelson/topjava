@@ -27,6 +27,47 @@ public class UserMealsUtil {
         List<UserMealWithExceed> mealsWithExceedStream = getFilteredWithExceededStream(
                 meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
         System.out.println(mealsWithExceedStream);
+
+        List<UserMealWithExceed> mealsWithExceedN = getFilteredWithExceededInOneIteration(
+                meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
+        System.out.println(mealsWithExceedN);
+    }
+
+    private static List<UserMealWithExceed> getFilteredWithExceededInOneIteration(
+            List<UserMeal> meals, LocalTime mealStartTime, LocalTime mealEndTime, int caloriesLimitPerDay) {
+        Map<LocalDate, List<UserMealWithExceed>> mealsByDate = new HashMap<>();
+        Map<LocalDate, Integer> caloriesByDate = new HashMap<>();
+        Set<UserMealWithExceed> mealsInTime = new HashSet<>();
+
+        meals.forEach(meal -> {
+            UserMealWithExceed mealWithExceed = new UserMealWithExceed(
+                    meal.getDateTime(), meal.getDescription(), meal.getCalories(), true);
+
+            if (mealInTime(meal, mealStartTime, mealEndTime)) {
+                mealsInTime.add(mealWithExceed);
+            }
+
+            caloriesByDate.merge(meal.getDate(), meal.getCalories(), Integer::sum);
+
+            LocalDate mealDate = meal.getDate();
+            mealsByDate.compute(mealDate, (localDate, userMealWithExceeds) -> {
+                if (userMealWithExceeds == null) {
+                    userMealWithExceeds = new ArrayList<>();
+                }
+                userMealWithExceeds.add(mealWithExceed);
+                return userMealWithExceeds;
+            });
+        });
+
+        Set<UserMealWithExceed> mealsWithExceed = new HashSet<>();
+        mealsByDate.forEach((localDate, userMealWithExceeds) -> {
+            if (caloriesByDate.get(localDate) > caloriesLimitPerDay) {
+                mealsWithExceed.addAll(userMealWithExceeds);
+            }
+        });
+
+        mealsInTime.retainAll(mealsWithExceed);
+        return new ArrayList<>(mealsInTime);
     }
 
     private static List<UserMealWithExceed> getFilteredWithExceededStream(
