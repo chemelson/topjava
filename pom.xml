@@ -59,7 +59,11 @@
             <version>${logback.version}</version>
             <scope>runtime</scope>
         </dependency>
-
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>1.2</version>
+        </dependency>
         <!--Web-->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -67,6 +71,7 @@
             <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
+
     </dependencies>
 
     <profiles>
