@@ -28,7 +28,7 @@ public class MealServlet extends HttpServlet {
         request.setAttribute("meals", meals);
         request.setAttribute("mealTimeFormatter", mealTimeFormatter);
         log.debug("forwarding to meals");
-        request.getRequestDispatcher("meals.jsp").forward(request, response);
+        request.getRequestDispatcher("jsp/meal/list.jsp").forward(request, response);
     }
 
 }
