@@ -4,15 +4,7 @@
 <html>
 <head>
     <title>Meals</title>
-    <style>
-        table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <h3><a href="index.html">Home</a></h3>
@@ -25,12 +17,15 @@
             <th>Date and Time</th>
             <th>Meal Description</th>
             <th>Calories</th>
+            <th colspan="2">Actions</th>
         </tr>
         <c:forEach var="meal" items="${meals}">
             <tr style="background-color:${meal.excess ? 'red' : 'green'}">
                 <td>${meal.dateTime.format(mealTimeFormatter)}</td>
-                <td><a href="meals?id=${meal.id}&action=view">${meal.description}</a></td>
+                <td>${meal.description}</td>
                 <td>${meal.calories}</td>
+                <td><a href="meals?id=${meal.id}&action=edit">Edit</a></td>
+                <td><a href="meals?id=${meal.id}&action=delete">Delete</a></td>
             </tr>
         </c:forEach>
     </table>

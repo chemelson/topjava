@@ -5,7 +5,7 @@ import java.util.List;
 public interface Storage<T> {
     void save(T item);
 
-    T get(long id);
+    T get(Long id);
 
     void update(T item);
 

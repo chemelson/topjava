@@ -9,6 +9,7 @@
 <html>
 <head>
     <title>Edit meal</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <h3><a href="index.html">Home</a></h3>

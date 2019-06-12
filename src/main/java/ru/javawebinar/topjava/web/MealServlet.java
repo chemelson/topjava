@@ -20,6 +20,7 @@ import java.util.List;
 public class MealServlet extends HttpServlet {
     private static final int CALORIES_DAY_LIMIT = 2000;
     private static DateTimeFormatter mealTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+    private static DateTimeFormatter isoTimeFormatter = DateTimeFormatter.ISO_DATE_TIME;
     private Storage<Meal> storage;
 
     @Override
@@ -31,36 +32,17 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
+        action = action != null ? action : "";
         String id = request.getParameter("id");
-        if (action == null) {
-            List<MealTo> meals = MealsUtil.getFilteredWithExcess(storage.getAll(),
-                    LocalTime.MIN, LocalTime.MAX, CALORIES_DAY_LIMIT);
-            request.setAttribute("meals", meals);
-            request.setAttribute("mealTimeFormatter", mealTimeFormatter);
-            request.getRequestDispatcher("jsp/meal/list.jsp").forward(request, response);
-            return;
-        }
 
-        MealTo mealTo = new MealTo(LocalDateTime.now(), "", 0);
-        String dispatchUrl;
         Meal meal;
         switch (action) {
             case "add":
-                dispatchUrl = "/jsp/meal/add.jsp";
+                meal = new Meal(null, "", 0);
                 break;
             case "edit":
                 meal = getMealFromRequestParams(id);
-                mealTo = new MealTo(meal.getDateTime(),
-                        meal.getDescription(), meal.getCalories(), meal.getId());
-                dispatchUrl = "/jsp/meal/edit.jsp";
-                request.setAttribute("isoTimeFormatter", DateTimeFormatter.ISO_DATE_TIME);
-                break;
-            case "view":
-                meal = getMealFromRequestParams(id);
-                mealTo = new MealTo(meal.getDateTime(),
-                        meal.getDescription(), meal.getCalories(), meal.getId());
-                dispatchUrl = "/jsp/meal/view.jsp";
-                request.setAttribute("mealTimeFormatter", mealTimeFormatter);
+                request.setAttribute("isoTimeFormatter", isoTimeFormatter);
                 break;
             case "delete":
                 meal = getMealFromRequestParams(id);
@@ -68,10 +50,15 @@ public class MealServlet extends HttpServlet {
                 response.sendRedirect("meals");
                 return;
             default:
-                throw new IllegalArgumentException("Action " + action + " is illegal");
+                List<MealTo> meals = MealsUtil.getFilteredWithExcess(storage.getAll(),
+                        LocalTime.MIN, LocalTime.MAX, CALORIES_DAY_LIMIT);
+                request.setAttribute("meals", meals);
+                request.setAttribute("mealTimeFormatter", mealTimeFormatter);
+                request.getRequestDispatcher("WEB-INF/jsp/meal/list.jsp").forward(request, response);
+                return;
         }
-        request.setAttribute("meal", mealTo);
-        request.getRequestDispatcher(dispatchUrl).forward(request, response);
+        request.setAttribute("meal", meal);
+        request.getRequestDispatcher("WEB-INF/jsp/meal/edit.jsp").forward(request, response);
     }
 
     @Override
@@ -80,7 +67,7 @@ public class MealServlet extends HttpServlet {
         String id = request.getParameter("id");
 
         LocalDateTime mealDateTime = LocalDateTime.parse(request.getParameter("mealdatetime"),
-                DateTimeFormatter.ISO_DATE_TIME);
+                isoTimeFormatter);
         String mealDescription = request.getParameter("mealdescription");
         int mealCalories = Integer.valueOf(request.getParameter("mealcalories"));
 
@@ -89,7 +76,7 @@ public class MealServlet extends HttpServlet {
             storage.save(new Meal(mealDateTime, mealDescription, mealCalories));
         } else {
             long mealId = Long.valueOf(id);
-            storage.update(new Meal(mealDateTime, mealDescription, mealCalories, mealId));
+            storage.update(new Meal(mealId, mealDateTime, mealDescription, mealCalories));
         }
         response.sendRedirect("meals");
     }
