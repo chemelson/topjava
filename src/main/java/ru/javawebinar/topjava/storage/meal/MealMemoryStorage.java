@@ -9,17 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class MealMemoryStorage implements Storage<Meal> {
     private Map<Long, Meal> storage = new ConcurrentHashMap<>();
     private final AtomicLong counter = new AtomicLong(0);
 
     public MealMemoryStorage() {
-        Map<Long, Meal> meals = MealsTempData.getTempData().stream()
-                .collect(Collectors.toMap(Meal::getId, Function.identity()));
-        storage.putAll(meals);
+        MealsTempData.getTempData().forEach(this::save);
     }
 
     @Override
@@ -40,8 +36,8 @@ public class MealMemoryStorage implements Storage<Meal> {
     }
 
     @Override
-    public void delete(Meal meal) {
-        storage.remove(meal.getId(), meal);
+    public void delete(Long id) {
+        storage.remove(id);
     }
 
     @Override

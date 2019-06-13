@@ -45,8 +45,7 @@ public class MealServlet extends HttpServlet {
                 request.setAttribute("isoTimeFormatter", isoTimeFormatter);
                 break;
             case "delete":
-                meal = getMealFromRequestParams(id);
-                storage.delete(meal);
+                storage.delete(Long.valueOf(id));
                 response.sendRedirect("meals");
                 return;
             default:
@@ -54,7 +53,7 @@ public class MealServlet extends HttpServlet {
                         LocalTime.MIN, LocalTime.MAX, CALORIES_DAY_LIMIT);
                 request.setAttribute("meals", meals);
                 request.setAttribute("mealTimeFormatter", mealTimeFormatter);
-                request.getRequestDispatcher("WEB-INF/jsp/meal/list.jsp").forward(request, response);
+                request.getRequestDispatcher("WEB-INF/jsp/meal/meals.jsp").forward(request, response);
                 return;
         }
         request.setAttribute("meal", meal);

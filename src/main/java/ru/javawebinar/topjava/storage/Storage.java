@@ -9,7 +9,7 @@ public interface Storage<T> {
 
     void update(T item);
 
-    void delete(T item);
+    void delete(Long id);
 
     List<T> getAll();
 }
