@@ -7,12 +7,16 @@ import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealTo;
+import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserCaloriesPerDay;
 import static ru.javawebinar.topjava.util.MealsUtil.getWithExcess;
+import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 
 import java.util.List;
+
+
 
 @Controller
 public class MealRestController {
@@ -45,9 +49,14 @@ public class MealRestController {
         service.delete(id, userId);
     }
 
-    public void update(Meal meal) {
+    public void update(Meal meal, int id) {
+        assureIdConsistent(meal, id);
         int userId = authUserId();
-        log.info("update meal " + meal.getId() + " for user " + userId);
-        service.update(meal, userId);
+        if (service.get(id, userId) != null) {
+            log.info("update meal " + meal.getId() + " for user " + userId);
+            service.update(meal, userId);
+        } else {
+            throw new NotFoundException("not found");
+        }
     }
 }
