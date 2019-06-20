@@ -36,7 +36,6 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
             meal.setId(counter.incrementAndGet());
         }
         meals.put(meal.getId(), meal);
-        repository.put(userId, meals);
         return meal;
     }
 
@@ -44,7 +43,10 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     public boolean delete(int id, int userId) {
         log.info("delete {}", id);
         Map<Integer, Meal> meals = repository.get(userId);
-        return meals.remove(id) != null;
+        if (meals != null) {
+            return meals.remove(id) != null;
+        }
+        return false;
     }
 
     @Override
@@ -62,12 +64,6 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
         log.info("getAll for user {}", userId);
         return repository.get(userId).values().stream()
                 .sorted(Comparator.comparing(Meal::getDate).reversed()).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Meal> getAllFiltered(int userId, LocalTime startTime, LocalTime endTime) {
-        return getAll(userId).stream()
-                .filter(meal -> DateTimeUtil.isBetween(meal.getTime(), startTime, endTime)).collect(Collectors.toList());
     }
 }
 
