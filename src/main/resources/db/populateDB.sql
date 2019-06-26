@@ -12,6 +12,6 @@ INSERT INTO user_roles (role, user_id) VALUES
   ('ROLE_ADMIN', 100001);
 
 INSERT INTO meals (datetime, description, calories, user_id) VALUES
-  (now() + interval '1 minute', 'Dinner', 1500, 100000),
-  (now(), 'Supper', 1300, 100000),
-  (now(), 'Breakfast', 1300, 100001);
+  ('2019-05-30 10:00:00.0', 'Breakfast', 500, 100000),
+  ('2019-05-30 13:00:00.0', 'Dinner', 1000, 100000),
+  ('2019-05-30 20:00:00.0', 'Supper', 500, 100001);
