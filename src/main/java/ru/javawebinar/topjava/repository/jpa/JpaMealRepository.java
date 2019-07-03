@@ -7,9 +7,7 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,31 +39,33 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        Query query = em.createQuery("DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:user_id");
-        return query.setParameter("id", id).setParameter("user_id", userId).executeUpdate() != 0;
+        return em.createNamedQuery(Meal.DELETE)
+                .setParameter("id", id)
+                .setParameter("user_id", userId)
+                .executeUpdate() != 0;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        try {
-            Query query = em.createQuery("SELECT m FROM Meal m WHERE m.id=:id AND m.user.id=:user_id");
-            return (Meal) query.setParameter("id", id).setParameter("user_id", userId).getSingleResult();
-        } catch (NoResultException e) {
-            return null;
+        Meal meal = em.find(Meal.class, id);
+        User user = em.find(User.class, userId);
+        if (meal != null && user != null) {
+            return meal.getUser() == user ? meal : null; // Can do this because same session?
         }
+        return null;
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        Query query = em.createQuery("SELECT m FROM Meal m WHERE m.user.id=:user_id ORDER BY m.dateTime DESC");
-        return query.setParameter("user_id", userId).getResultList();
+        return em.createNamedQuery(Meal.ALL_SORTED, Meal.class)
+                .setParameter("user_id", userId)
+                .getResultList();
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        Query query = em.createQuery("SELECT m FROM Meal m WHERE m.user.id=:user_id " +
-                "AND m.dateTime BETWEEN :start_date AND :end_date ORDER BY m.dateTime DESC");
-        return query.setParameter("user_id", userId)
+        return em.createNamedQuery(Meal.BETWEEN, Meal.class)
+                .setParameter("user_id", userId)
                 .setParameter("start_date", startDate)
                 .setParameter("end_date", endDate)
                 .getResultList();
